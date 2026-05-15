@@ -1,0 +1,159 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Syne', sans-serif;
+  background-color: #0e0f14;
+  height: 100vh;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  justify-items: baseline;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.title {
+  font-size: 10px;
+  color: #888;
+}
+
+.date {
+  font-size: 13px;
+  font-weight: 400;
+  color: #6b6f7e;
+  text-transform: uppercase;
+}
+
+.profile-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile {
+  width: 34px;
+  height: 34px;
+  border: 2px solid rgba(255, 255, 255, 0.07);
+  cursor: pointer;
+  border-radius: 50%;
+  align-items: center;
+  background: linear-gradient(135deg, #7b8cde, #2dcc8f);
+}
+
+svg {
+  width: 14px;
+  height: 14px;
+}
+
+.new_data:link,
+.new_data:visited {
+  color: #000;
+  font-size: 14px;
+  background-color: #f5a623;
+  padding: 9px 18px;
+  font-weight: 700;
+  border-radius: 5px;
+  box-shadow: 0 0 20px rgba(245, 166, 35);
+
+  display: grid;
+  grid-template-columns: 1fr 7fr;
+  align-items: center;
+  justify-content: center;
+}
+
+.new_data:hover {
+  background-color: #d4881c;
+}
+
+.cards {
+  width: 880px;
+  margin: 100px auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  justify-items: center;
+}
+
+.card {
+  background-color: #17191e;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 24px;
+  width: 280px;
+}
+
+.card-label {
+  font-size: 10px;
+  color: #888;
+}
+
+.card-amount {
+  font-size: 32px;
+  margin-top: 10px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.card-period {
+  font-size: 10px;
+  color: #888;
+  margin-top: 5px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.income {
+  border-top: 5px solid #2bd58e;
+  background: linear-gradient(
+    135deg, 
+    rgba(43, 213, 142, 0.08) 0%,
+    #15171e 40%,
+    #0d0e12 100%
+  );
+  color: #2bd58e;
+}
+
+
+.expenses {
+  border-top: 5px solid #e84c6a;
+  background: linear-gradient(
+    135deg, 
+    rgba(213, 68, 43, 0.08) 0%,
+    #15171e 40%,
+    #0d0e12 100%
+  );
+  color: #e84c6a;
+}
+
+.net {
+  border-top: 5px solid #7b8cde;
+  background: linear-gradient(
+    135deg, 
+    rgba(123, 140, 222, 0.08) 0%,
+    #15171e 40%,
+    #0d0e12 100%
+  );
+  color: #7b8cde;
+}
+
+.per {
+  border-top: 5px solid #f5a623;
+  background: linear-gradient(
+    135deg, 
+    rgba(245, 166, 35, 0.08) 0%,
+    #15171e 40%,
+    #0d0e12 100%
+  );
+  color: #f5a623;
+}

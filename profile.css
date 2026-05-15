@@ -1,0 +1,11 @@
+#profile-menu {
+  display: none; /* Keeps it invisible until the click happens */
+  position: absolute;
+  right: 20px;
+  top: 60px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  padding: 10px;
+  border-radius: 8px;
+  z-index: 100;
+}

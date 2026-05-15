@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Income Transaction History</title>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="history.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <a class="back-btn" href="mainpage.html"> ← Back </a>
+        <div class="divider-v"></div>
+        <span class="topbar-brand">Finance Tracker</span>
+      </div>
+      <div class="topbar-right">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth="{1.5}"
+          stroke="currentColor"
+          className="size-6"
+          class="profile"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-title-group">
+        <div class="page-eyebrow">Transaction History</div>
+        <div class="page-title">Income</div>
+      </div>
+      <div class="page-summary">
+        <div class="summary-label">Total Earned</div>
+        <div class="summary-total">+GH₵0.00</div>
+        <div class="summary-count">5 transactions</div>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr class="col-headers">
+            <th>Date</th>
+            <th>Category</th>
+            <th>Type</th>
+            <th>Note</th>
+            <th class="right">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- MAY 2026 -->
+          <tr class="month-group">
+            <th class="month-name-cell" colspan="2">May 2026</th>
+            <th class="month-count-cell">3 transactions</th>
+            <th></th>
+            <th class="month-total-cell">+GH₵0.00</th>
+          </tr>
+          <tr class="data-row">
+            <td class="date-cell">May 14</td>
+            <td class="category-cell">Salary</td>
+            <td><span class="type-pill income">↑ Income</span></td>
+            <td class="note-cell">Monthly pay</td>
+            <td class="amount-cell income">+GH₵0.00</td>
+          </tr>
+          <tr class="data-row">
+            <td class="date-cell">May 10</td>
+            <td class="category-cell">Freelance</td>
+            <td><span class="type-pill income">↑ Income</span></td>
+            <td class="note-cell">Logo project</td>
+            <td class="amount-cell income">+GH₵0.00</td>
+          </tr>
+          <tr class="data-row">
+            <td class="date-cell">May 3</td>
+            <td class="category-cell">Investment</td>
+            <td><span class="type-pill income">↑ Income</span></td>
+            <td class="note-cell">Dividends Q1</td>
+            <td class="amount-cell income">+GH₵0.00</td>
+          </tr>
+          <tr class="data-row">
+            <td class="date-cell">May 1</td>
+            <td class="category-cell">Freelance</td>
+            <td><span class="type-pill income">↑ Income</span></td>
+            <td class="note-cell">—</td>
+            <td class="amount-cell income">+GH₵0.00</td>
+          </tr>
+
+          <!-- APRIL 2026 -->
+          <tr class="month-group">
+            <th class="month-name-cell" colspan="2">April 2026</th>
+            <th class="month-count-cell">2 transactions</th>
+            <th></th>
+            <th class="month-total-cell">+GH₵0.00</th>
+          </tr>
+          <tr class="data-row">
+            <td class="date-cell">Apr 15</td>
+            <td class="category-cell">Salary</td>
+            <td><span class="type-pill income">↑ Income</span></td>
+            <td class="note-cell">Monthly pay</td>
+            <td class="amount-cell income">+GH₵0.00</td>
+          </tr>
+          <tr class="data-row">
+            <td class="date-cell">Apr 4</td>
+            <td class="category-cell">Gift</td>
+            <td><span class="type-pill income">↑ Income</span></td>
+            <td class="note-cell">Birthday</td>
+            <td class="amount-cell income">+GH₵0.00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <button class="export btn">Export History</button>
+  </body>
+</html>
