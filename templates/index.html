@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Finance App</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -16,7 +16,7 @@
     <header>
       <div>
         <p class="title">FINANCE TRACKER</p>
-        <p class="date">Date</p>
+        <p class="date">{{ day }}</p>
       </div>
 
       <div class="profile-section" id="profile-trigger">
@@ -50,8 +50,12 @@
         </svg>
 
         <div id="profile-menu" class="hidden">
-          <p>Settings</p>
-          <p>Logout</p>
+          <a href="{{ url_for('settings') }}">
+              <p onclick="window.location='settings.html'">Settings</p>
+          </a>
+          <a href="{{ url_for('logout') }}">
+            <p onclick="window.location='authentication.html'">Logout</p>
+          </a>
         </div>
       </div>
     </header>
@@ -59,37 +63,37 @@
     <main class="cards">
       <a href="transaction-history.html" class="card income">
         <p class="card-label">INCOME</p>
-        <p class="card-amount">GH₵ 0.00</p>
+        <p class="card-amount">GH₵ {{ "%.2f" | format(this_income) }}...</p>
         <p class="card-period">THIS MONTH</p>
       </a>
 
       <div class="card net">
         <p class="card-label">NET TOTAL</p>
-        <p class="card-amount">GH₵ 0.00</p>
+        <p class="card-amount">GH₵ {{ "%.2f" | format(total) }}...</p>
         <p class="card-period">BALANCE</p>
       </div>
 
       <a href="transaction-history.html" class="card expenses">
         <p class="card-label">EXPENSES</p>
-        <p class="card-amount">GH₵ 0.00</p>
+        <p class="card-amount">GH₵ {{ "%.2f" | format(this_expense) }}...</p>
         <p class="card-period">vs. LAST MONTH</p>
       </a>
 
       <div class="card income">
         <p class="card-label">LAST MONTH INCOME</p>
-        <p class="card-amount">GH₵ 0.00</p>
+        <p class="card-amount">GH₵ {{ "%.2f" | format(last_income) }}...</p>
         <p class="card-period">LAST MONTH</p>
       </div>
 
       <div class="card per">
         <p class="card-label">SAVINGS RATE</p>
-        <p class="card-amount">0.00%</p>
+        <p class="card-amount">{{ "%.2f" | format(per) }}% ...</p>
         <p class="card-period">IN ALL</p>
       </div>
 
       <div class="card expenses">
         <p class="card-label">LAST MONTH EXPENSES</p>
-        <p class="card-amount">GH₵ 0.00</p>
+        <p class="card-amount">GH₵ {{ "%.2f" | format(last_expense) }}...</p>
         <p class="card-period">LAST MONTH</p>
       </div>
     </main>
@@ -107,7 +111,7 @@
           <button class="toggle-btn expenses" onclick="setToggle('expenses')">Expenses</button>
         </div>
 
-        <form action="#" onsubmit="handleSubmit(event)">
+        <form action="{{ url_for('home') }}" onsubmit="handleSubmit(event)">
           <label for="amount">Amount:</label>
           <input type="number" name="amount" id="amount" class="modal-input" placeholder="0.00" required />
 

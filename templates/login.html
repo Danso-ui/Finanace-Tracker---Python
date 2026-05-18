@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Finance App</title>
-    <link rel="stylesheet" href="styles_auth.css" />
+    <link rel="stylesheet" href=" {{ url_for('static', filename='styles_auth.css') }} " />
   </head>
   <body>
     <div class="auth">
@@ -25,7 +25,14 @@
         </svg>
         Welcome
       </h1>
-      <form id="loginForm">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <p style="text-align: center;">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+      <form id="loginForm" action="{{ url_for('login') }}" method="post">
         <div class="error-message" id="errorMessage"></div>
 
         <label for="email">Email</label>
@@ -51,10 +58,10 @@
           </button>
         </div>
 
-        <button type="submit">Login</button>
+        <button type="submit"> Login </button>
         <p>
           Don't have an account?
-          <a href="template/signup.html">Sign up</a>
+          <a href="{{ url_for('signup') }}">Sign up</a>
         </p>
       </form>
     </div>

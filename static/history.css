@@ -326,6 +326,7 @@ tbody tr.data-row td {
   border: 1px solid #f5a623;
   color: gold;
   display: block;
+  background: #16181f;
 
   width: 200px;
   margin: 10px auto;
