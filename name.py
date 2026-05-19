@@ -1,4 +1,3 @@
-from main import month, today
+name = 'David'
 
-print(month)
-print(today)
+print(name.split(" "))

@@ -114,26 +114,26 @@ with app.app_context():
         print("Set starting ID to 1001!")
 #=== === === === === === === === === === === === === === === === === === === === === === === === === === === === === ===
 
-@app.route("/")
+@app.route("/", methods=['GET', 'POST'])
 def home():
-    today = month_year(year, month)
+    today = month_year(year, now.month)
     if not current_user.is_authenticated:
         return redirect(url_for("login"))
-    expenses = Transaction.query.filter_by(user_id=current_user.id, transaction_type='expense').all()
+    expenses = Transaction.query.filter_by(user_id=current_user.id, transaction_type='expenses').all()
     income = Transaction.query.filter_by(user_id=current_user.id, transaction_type='income').all()
 
     # TODO !==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==
     this_month_income = Transaction.query.filter_by(
         user_id=current_user.id,
         transaction_type='income',
-        month=f'{actual_month(month)}'
+        month=f'{actual_month(now.month)}'
     ).all()
     tmi = sum(t.amount for t in this_month_income)
 
     # TODO !==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==
     this_month_expense = Transaction.query.filter_by(
-        transaction_type='expense',
-        month=f'{actual_month(month)}',
+        transaction_type='expenses',
+        month=f'{actual_month(now.month)}',
         user_id=current_user.id
     ).all()
     tme = sum(t.amount for t in this_month_expense)
@@ -147,7 +147,7 @@ def home():
     last_income = Transaction.query.filter_by(
         user_id=current_user.id,
         transaction_type='income',
-        month=f'{actual_month(month)}'
+        month=f'{actual_month(now.month - 1)}'
     ).all()
     lmi = sum(t.amount for t in last_income) if last_income else 0
 
@@ -158,9 +158,29 @@ def home():
     last_expense = Transaction.query.filter_by(
         user_id=current_user.id,
         transaction_type='expense',
-        month=f'{actual_month(month)}'
-    ).order_by()
+        month=f'{actual_month(now.month - 1)}'
+    ).all()
     lme = sum(t.amount for t in last_expense) if last_expense else 0
+
+    if request.method == 'POST':
+        trans_type = request.form.get('transaction_type')
+        amount = request.form.get('amount')
+        category = request.form.get('category')
+        note = request.form.get('note') if request.form.get('note') else '—'
+
+        new_transaction = Transaction(
+            amount=amount,
+            category=category,
+            transaction_type=trans_type,
+            month=f'{actual_month(now.month)}',
+            user_id=current_user.id,
+            note=note,
+            dateMonth=f'{actual_month(now.month)}',
+            year=now.year,
+        )
+        db.session.add(new_transaction)
+        db.session.commit()
+        return redirect(url_for('home'))
 
     return render_template(
         "index.html",
@@ -173,6 +193,7 @@ def home():
         per=percentage,
         last_expense=lme,
     )
+#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -193,6 +214,7 @@ def login():
             return redirect(url_for('home'))
 
     return render_template("login.html", logged_in=False)
+#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -236,22 +258,69 @@ def signup():
             return redirect(url_for('signup'))
 
     return render_template("signup.html", logged_in=False)
+#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 @app.route("/settings", methods=["GET", "POST"])
 def settings():
     name = current_user.username
     email = current_user.email
+    action = request.form.get("action")
+
+    if request.method == "POST":
+        if action == "change_password":
+            old_password = request.form.get("oldPassword")
+            new_password = request.form.get("newPassword")
+            new_password_confirm = request.form.get("newPasswordConfirm")
+
+            if check_password_hash(current_user.password_hash, old_password):
+                print(f"Hi {check_password_hash(current_user.password_hash, old_password)}")
+                if new_password == new_password_confirm:
+                    new_password_hash = generate_password_hash(new_password)
+                    current_user.password_hash = new_password_hash
+                    db.session.commit()
+                    return redirect(url_for('login'))
+                else:
+                    flash("The password doesn't match!")
+                    return redirect(url_for('settings'))
+            else:
+                flash("The password incorrect!")
+                return redirect(url_for('settings'))
+        elif action == "update_profile":
+            new_name = request.form.get("name")
+            new_email = request.form.get("email")
+
+            # Make sure they didn't submit blank fields
+            if new_name and new_email:
+                current_user.username = new_name
+                current_user.email = new_email
+                db.session.commit()
+                flash("Profile updated successfully!")
+
+            return redirect(url_for('settings'))
+        elif action == "delete_all":
+            Transaction.query.filter_by(user_id=current_user.id).delete()
+            db.session.commit()
+            return redirect(url_for('settings'))
+        elif action == "delete_account":
+            Transaction.query.filter_by(user_id=current_user.id).delete()
+            User.query.filter_by(id=current_user.id).delete()
+            db.session.commit()
+            logout_user()
+            return redirect(url_for('login'))
+
     return render_template(
         "settings.html",
         logged_in=True,
         name=name,
         email=email
     )
+#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 @app.route("/logout")
 def logout():
     logout_user()
     return redirect(url_for('login'))
+#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 if __name__ == '__main__':
     app.run(debug=True)

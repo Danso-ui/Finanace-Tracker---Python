@@ -63,37 +63,37 @@
     <main class="cards">
       <a href="transaction-history.html" class="card income">
         <p class="card-label">INCOME</p>
-        <p class="card-amount">GH₵ {{ "%.2f" | format(this_income) }}...</p>
+        <p class="card-amount">GH₵ {{ "%.2f" | format(this_income) }}</p>
         <p class="card-period">THIS MONTH</p>
       </a>
 
       <div class="card net">
         <p class="card-label">NET TOTAL</p>
-        <p class="card-amount">GH₵ {{ "%.2f" | format(total) }}...</p>
+        <p class="card-amount">GH₵ {{ "%.2f" | format(total) }}</p>
         <p class="card-period">BALANCE</p>
       </div>
 
       <a href="transaction-history.html" class="card expenses">
         <p class="card-label">EXPENSES</p>
-        <p class="card-amount">GH₵ {{ "%.2f" | format(this_expense) }}...</p>
+        <p class="card-amount">GH₵ {{ "%.2f" | format(this_expense) }}</p>
         <p class="card-period">vs. LAST MONTH</p>
       </a>
 
       <div class="card income">
         <p class="card-label">LAST MONTH INCOME</p>
-        <p class="card-amount">GH₵ {{ "%.2f" | format(last_income) }}...</p>
+        <p class="card-amount">GH₵ {{ "%.2f" | format(last_income) }}</p>
         <p class="card-period">LAST MONTH</p>
       </div>
 
       <div class="card per">
         <p class="card-label">SAVINGS RATE</p>
-        <p class="card-amount">{{ "%.2f" | format(per) }}% ...</p>
+        <p class="card-amount">{{ "%.2f" | format(per) }}%</p>
         <p class="card-period">IN ALL</p>
       </div>
 
       <div class="card expenses">
         <p class="card-label">LAST MONTH EXPENSES</p>
-        <p class="card-amount">GH₵ {{ "%.2f" | format(last_expense) }}...</p>
+        <p class="card-amount">GH₵ {{ "%.2f" | format(last_expense) }}</p>
         <p class="card-period">LAST MONTH</p>
       </div>
     </main>
@@ -111,9 +111,11 @@
           <button class="toggle-btn expenses" onclick="setToggle('expenses')">Expenses</button>
         </div>
 
-        <form action="{{ url_for('home') }}" onsubmit="handleSubmit(event)">
+        <form action="{{ url_for('home') }}" method="POST">
+          <input type="hidden" name="transaction_type" id="transaction_type" value="income" />
+
           <label for="amount">Amount:</label>
-          <input type="number" name="amount" id="amount" class="modal-input" placeholder="0.00" required />
+          <input type="number" name="amount" id="amount" class="modal-input" placeholder="0.00" step="0.01" required />
 
           <label for="category">Category:</label>
           <select name="category" id="category">
@@ -136,8 +138,8 @@
             </optgroup>
           </select>
 
-          <label for="date">Date:</label>
-          <input type="datetime-local" name="date" id="date" class="modal-input" required />
+<!--          <label for="date">Date:</label>-->
+<!--          <input type="datetime-local" name="date" id="date" class="modal-input" required />-->
 
           <label for="note">Note (Optional):</label>
           <textarea name="note" id="note" class="modal-input" rows="2"></textarea>
@@ -174,10 +176,11 @@
     function setToggle(type) {
       document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelector('.toggle-btn.' + type).classList.add('active');
+      document.getElementById('transaction_type').value = type;
     }
 
     function handleSubmit(e) {
-      e.preventDefault();
+      // e.preventDefault();
       // Handle form submission here
       closeModal();
     }
