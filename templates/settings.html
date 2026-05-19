@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings — Finance Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --bg:        #0e0f14;
+        --surface:   #13141a;
+        --surface2:  #1d1f28;
+        --border:    rgba(255,255,255,0.07);
+        --muted:     #6b6f7e;
+        --text:      #f0f0f0;
+        --green:     #2dcc8f;
+        --red:       #e84c6a;
+        --blue:      #7b8cde;
+        --gold:      #f5a623;
+      }
+
+      body {
+        background: var(--bg);
+        font-family: 'Syne', sans-serif;
+        color: var(--text);
+        min-height: 100vh;
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 60% 50% at 20% 20%, rgba(45,204,143,0.03) 0%, transparent 60%),
+          radial-gradient(ellipse 50% 40% at 80% 80%, rgba(232,76,106,0.03) 0%, transparent 60%);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      a { text-decoration: none; color: inherit; }
+
+      /* ── TOPBAR ── */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(14,15,20,0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 40px;
+      }
+      .topbar-left { display: flex; align-items: center; gap: 16px; }
+      .back-btn {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 12px; font-weight: 600; color: var(--muted);
+        cursor: pointer; background: none; border: none;
+        font-family: 'Syne', sans-serif; transition: color 0.15s;
+        text-decoration: none;
+      }
+      .back-btn:hover { color: var(--text); }
+      .divider-v { width: 1px; height: 18px; background: var(--muted); }
+      .topbar-brand {
+        font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--muted);
+      }
+      .topbar-right { display: flex; align-items: center; gap: 12px; }
+      .profile-avatar {
+        width: 34px; height: 34px;
+        border: 2px solid var(--border);
+        border-radius: 50%;
+        background: linear-gradient(135deg, #7b8cde, #2dcc8f);
+        cursor: pointer;
+      }
+
+      /* ── LAYOUT ── */
+      .page-wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 40px 40px 80px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .page-eyebrow {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.18em;
+        text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+      }
+      .page-title {
+        font-size: 28px; font-weight: 800; letter-spacing: -0.02em;
+        color: var(--text); margin-bottom: 36px;
+      }
+
+      /* ── SECTION ── */
+      .section { margin-bottom: 36px; }
+      .section-label {
+        font-size: 10px; font-weight: 700; letter-spacing: 0.16em;
+        text-transform: uppercase; color: var(--muted);
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 2px;
+      }
+
+      /* ── ROWS ── */
+      .setting-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+        gap: 20px;
+        transition: background 0.15s;
+        border-radius: 0;
+      }
+      .setting-row:last-child { border-bottom: none; }
+      .setting-row:hover { background: rgba(255,255,255,0.02); }
+
+      .setting-row.first { border-radius: 12px 12px 0 0; }
+      .setting-row.last  { border-radius: 0 0 12px 12px; border-bottom: none; }
+      .setting-row.only  { border-radius: 12px; border-bottom: none; }
+
+      .row-group {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-top: 12px;
+      }
+
+      .row-info { flex: 1; }
+      .row-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+      .row-desc  { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+      /* ── PROFILE CARD ── */
+      .profile-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 36px;
+        margin-top: 4px;
+      }
+      .profile-card-avatar {
+        width: 64px; height: 64px; flex-shrink: 0;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #7b8cde, #2dcc8f);
+        border: 3px solid var(--border);
+        position: relative;
+        cursor: pointer;
+      }
+      .profile-card-avatar .avatar-edit {
+        position: absolute; bottom: 0; right: 0;
+        width: 22px; height: 22px;
+        background: var(--gold);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 10px;
+      }
+      .profile-card-info { flex: 1; }
+      .profile-card-name {
+        font-size: 18px; font-weight: 700; letter-spacing: -0.01em;
+        color: var(--text); margin-bottom: 2px;
+      }
+      .profile-card-email { font-size: 13px; color: var(--muted); }
+      .profile-card-badge {
+        font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+        text-transform: uppercase; background: rgba(45,204,143,0.12);
+        color: var(--green); padding: 4px 10px; border-radius: 20px;
+      }
+
+      /* ── CONTROLS ── */
+
+      /* Toggle switch */
+      .toggle {
+        position: relative;
+        width: 44px; height: 24px;
+        flex-shrink: 0;
+      }
+      .toggle input { opacity: 0; width: 0; height: 0; }
+      .toggle-slider {
+        position: absolute; inset: 0;
+        background: var(--surface2);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 24px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .toggle-slider::before {
+        content: '';
+        position: absolute;
+        width: 16px; height: 16px;
+        left: 3px; top: 3px;
+        background: var(--muted);
+        border-radius: 50%;
+        transition: transform 0.2s, background 0.2s;
+      }
+      .toggle input:checked + .toggle-slider { background: rgba(45,204,143,0.2); border-color: var(--green); }
+      .toggle input:checked + .toggle-slider::before { transform: translateX(20px); background: var(--green); }
+
+      /* Select */
+      .setting-select {
+        background: var(--surface2);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        color: var(--text);
+        font-family: 'Syne', sans-serif;
+        font-size: 13px;
+        padding: 7px 12px;
+        cursor: pointer;
+        outline: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6f7e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 30px;
+        min-width: 130px;
+      }
+      .setting-select:focus { border-color: var(--green); }
+
+      /* Text input */
+      .setting-input {
+        background: var(--surface2);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        color: var(--text);
+        font-family: 'Syne', sans-serif;
+        font-size: 13px;
+        padding: 7px 12px;
+        outline: none;
+        width: 200px;
+        transition: border-color 0.2s;
+      }
+      .setting-input:focus { border-color: var(--green); }
+      .setting-input::placeholder { color: var(--muted); font-style: italic; }
+
+      /* Button variants */
+      .btn {
+        font-family: 'Syne', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+      }
+      .btn-ghost {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.12);
+        color: var(--muted);
+      }
+      .btn-ghost:hover { border-color: rgba(255,255,255,0.25); color: var(--text); }
+
+      .btn-green {
+        background: rgba(45,204,143,0.12);
+        border: 1px solid var(--green);
+        color: var(--green);
+      }
+      .btn-green:hover { background: rgba(45,204,143,0.22); }
+
+      .btn-red {
+        background: rgba(232,76,106,0.1);
+        border: 1px solid var(--red);
+        color: var(--red);
+      }
+      .btn-red:hover { background: rgba(232,76,106,0.2); }
+
+      .btn-gold {
+        background: linear-gradient(135deg, #f5a623, #f0820f);
+        color: #0e0f14;
+      }
+      .btn-gold:hover { filter: brightness(1.1); }
+
+      /* ── DANGER ZONE ── */
+      .danger-zone {
+        background: rgba(232,76,106,0.04);
+        border: 1px solid rgba(232,76,106,0.2);
+        border-radius: 12px;
+        margin-top: 12px;
+        overflow: hidden;
+      }
+      .danger-zone .setting-row { border-color: rgba(232,76,106,0.1); }
+      .danger-zone .row-title { color: var(--red); }
+
+      /* ── SAVE BAR ── */
+      .save-bar {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: rgba(14,15,20,0.95);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid var(--border);
+        padding: 14px 40px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        z-index: 200;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+      }
+      .save-bar.visible { transform: translateY(0); }
+      .save-bar-msg { font-size: 12px; color: var(--muted); margin-right: auto; }
+
+      /* ── TOAST ── */
+      .toast {
+        position: fixed;
+        bottom: 80px;
+        right: 40px;
+        background: var(--surface);
+        border: 1px solid var(--green);
+        color: var(--green);
+        font-size: 13px;
+        font-weight: 600;
+        padding: 12px 20px;
+        border-radius: 10px;
+        z-index: 300;
+        opacity: 0;
+        transform: translateY(12px);
+        transition: opacity 0.25s, transform 0.25s;
+        pointer-events: none;
+      }
+      .toast.show { opacity: 1; transform: translateY(0); }
+
+      /* ── MODAL ── */
+      .modal-overlay {
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.7);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 400;
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.2s;
+      }
+      .modal-overlay.open { opacity: 1; pointer-events: all; }
+      .modal-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 28px;
+        width: 380px;
+        animation: slideUp 0.25s ease;
+      }
+      @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to   { transform: translateY(0); opacity: 1; }
+      }
+      .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: var(--red); }
+      .modal-body  { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+      .modal-body strong { color: var(--text); }
+      .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+      /* ── COLOUR SWATCHES ── */
+      .swatch-row { display: flex; gap: 8px; }
+      .swatch {
+        width: 28px; height: 28px; border-radius: 50%;
+        cursor: pointer; border: 2px solid transparent;
+        transition: border-color 0.15s, transform 0.15s;
+      }
+      .swatch:hover { transform: scale(1.15); }
+      .swatch.active { border-color: var(--text); }
+      .swatch.green  { background: #2dcc8f; }
+      .swatch.blue   { background: #7b8cde; }
+      .swatch.gold   { background: #f5a623; }
+      .swatch.red    { background: #e84c6a; }
+      .swatch.purple { background: #a76de8; }
+    </style>
+  </head>
+  <body>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <a class="back-btn" href="{{ url_for('home') }}">← Back</a>
+        <div class="divider-v"></div>
+        <span class="topbar-brand">Finance Tracker</span>
+      </div>
+      <div class="topbar-right">
+        <div class="profile-avatar"></div>
+      </div>
+    </div>
+
+    <!-- PAGE -->
+    <div class="page-wrap">
+      <div class="page-eyebrow">Account</div>
+      <div class="page-title">Settings</div>
+
+      <!-- PROFILE CARD -->
+      <div class="profile-card">
+        <div class="profile-card-avatar">
+          <span class="avatar-edit">✎</span>
+        </div>
+        <div class="profile-card-info">
+          <div class="profile-card-name" id="display-name">{{ name }}</div>
+          <div class="profile-card-email" id="display-email">{{ email }}</div>
+        </div>
+        <span class="profile-card-badge">Active</span>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="section">
+        <div class="section-label">Profile</div>
+        <div class="row-group">
+            <form id="profile-form" action="{{ url_for('settings') }}" method="POST">
+            <input type="hidden" name="action" value="update_profile">
+
+            <div class="setting-row first">
+              <div class="row-info">
+                <div class="row-title">Name</div>
+                <div class="row-desc">Shown in the header and exports</div>
+              </div>
+              <input class="setting-input" name="name" id="name-input" type="text" placeholder="Your name" value="{{ name }}" oninput="markDirty()" />
+            </div>
+
+            <div class="setting-row">
+              <div class="row-info">
+                <div class="row-title">Email Address</div>
+                <div class="row-desc">Used for login and account recovery</div>
+              </div>
+              <input class="setting-input" name="email" id="email-input" type="email" placeholder="you@example.com" value="{{ email }}" oninput="markDirty()" />
+            </div>
+          </form>
+          <div class="setting-row last">
+            <div class="row-info">
+              <div class="row-title">Change Password</div>
+              <div class="row-desc">Update your login credentials</div>
+            </div>
+            <button class="btn btn-ghost" onclick="openPasswordModal()">Update</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DISPLAY -->
+      <!-- <div class="section">
+        <div class="section-label">Display & Regional</div>
+        <div class="row-group">
+          <div class="setting-row first">
+            <div class="row-info">
+              <div class="row-title">Currency</div>
+              <div class="row-desc">Symbol displayed on all amounts</div>
+            </div>
+            <select class="setting-select" onchange="markDirty()">
+              <option value="GHS" selected>GH₵ — Ghanaian Cedi</option>
+              <option value="USD">$ — US Dollar</option>
+              <option value="EUR">€ — Euro</option>
+              <option value="GBP">£ — British Pound</option>
+              <option value="NGN">₦ — Nigerian Naira</option>
+              <option value="KES">KSh — Kenyan Shilling</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div class="row-info">
+              <div class="row-title">Date Format</div>
+              <div class="row-desc">How dates appear in the app and exports</div>
+            </div>
+            <select class="setting-select" onchange="markDirty()">
+              <option value="MMM DD" selected>May 14</option>
+              <option value="DD/MM/YYYY">14/05/2026</option>
+              <option value="MM/DD/YYYY">05/14/2026</option>
+              <option value="YYYY-MM-DD">2026-05-14</option>
+            </select>
+          </div>
+          <div class="setting-row last">
+            <div class="row-info">
+              <div class="row-title">Accent Colour</div>
+              <div class="row-desc">Primary highlight colour across the app</div>
+            </div>
+            <div class="swatch-row">
+              <div class="swatch green active" onclick="setAccent(this)"></div>
+              <div class="swatch blue" onclick="setAccent(this)"></div>
+              <div class="swatch gold" onclick="setAccent(this)"></div>
+              <div class="swatch red" onclick="setAccent(this)"></div>
+              <div class="swatch purple" onclick="setAccent(this)"></div>
+            </div>
+          </div>
+        </div>
+      </div> -->
+
+      <!-- NOTIFICATIONS -->
+      <!-- <div class="section">
+        <div class="section-label">Notifications</div>
+        <div class="row-group">
+          <div class="setting-row first">
+            <div class="row-info">
+              <div class="row-title">Monthly Summary</div>
+              <div class="row-desc">Get a recap at the start of each month</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked onchange="markDirty()" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <div class="row-info">
+              <div class="row-title">Budget Alerts</div>
+              <div class="row-desc">Notify when spending exceeds a threshold</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" onchange="markDirty()" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-row last">
+            <div class="row-info">
+              <div class="row-title">Large Transaction Alert</div>
+              <div class="row-desc">Flag any single transaction above GH₵ 500</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked onchange="markDirty()" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div> -->
+
+      <!-- DATA -->
+      <div class="section">
+        <div class="section-label">Data & Privacy</div>
+        <div class="row-group">
+          <div class="setting-row first">
+            <div class="row-info">
+              <div class="row-title">Export All Data</div>
+              <div class="row-desc">Download your full transaction history as CSV</div>
+            </div>
+            <button class="btn btn-ghost" onclick="handleExport()">Export CSV</button>
+          </div>
+          <!-- <div class="setting-row last">
+            <div class="row-info">
+              <div class="row-title">Auto-backup</div>
+              <div class="row-desc">Periodically save a local snapshot of your data</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" onchange="markDirty()" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div> -->
+        </div>
+      </div>
+
+      <!-- DANGER ZONE -->
+      <div class="section">
+        <div class="section-label">Danger Zone</div>
+        <div class="danger-zone">
+          <div class="setting-row first">
+            <div class="row-info">
+              <div class="row-title">Clear All Transactions</div>
+              <div class="row-desc" style="color:#6b6f7e">Permanently deletes every transaction record. This cannot be undone.</div>
+            </div>
+            <button class="btn btn-red" onclick="openModal('clear')">Clear Data</button>
+          </div>
+          <div class="setting-row last">
+            <div class="row-info">
+              <div class="row-title">Delete Account</div>
+              <div class="row-desc" style="color:#6b6f7e">Remove your account and all associated data permanently.</div>
+            </div>
+            <button class="btn btn-red" onclick="openModal('delete')">Delete Account</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-wrap -->
+
+    <!-- SAVE BAR -->
+    <div class="save-bar" id="save-bar">
+      <span class="save-bar-msg">You have unsaved changes</span>
+      <button class="btn btn-ghost" onclick="discardChanges()">Discard</button>
+      <button class="btn btn-gold" onclick="saveChanges()">Save Changes</button>
+    </div>
+
+    <!-- DANGER MODAL -->
+    <div class="modal-overlay" id="danger-modal">
+      <div class="modal-box">
+        <div class="modal-title" id="modal-title">Clear All Transactions?</div>
+        <div class="modal-body" id="modal-body">
+          This will <strong>permanently delete</strong> every transaction in your history. Your account will remain, but all financial records will be wiped. This action cannot be undone.
+        </div>
+        <form method="post" id="danger-form" action="{{ url_for('settings') }}" >
+            <input type="hidden" name="action" id="danger-action-input" value="">
+            <div class="modal-actions">
+              <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+              <button class="btn btn-red" id="modal-confirm-btn">Yes, delete everything</button>
+            </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- PASSWORD MODAL -->
+    <div class="modal-overlay" id="password-modal">
+      <div class="modal-box">
+        <div class="modal-title" style="color:var(--text)">Change Password</div>
+        <div class="modal-body" style="margin-bottom:16px">
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <p style="text-align: center;">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+          Enter your current password, then choose a new one.
+        </div>
+          <form method="post">
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+
+          <input class="setting-input" style="width:100%" type="password" placeholder="Current password" name="oldPassword" />
+          <input class="setting-input" style="width:100%" type="password" placeholder="New password" name="newPassword" />
+          <input class="setting-input" style="width:100%" type="password" placeholder="Confirm new password" name="newPasswordConfirm"/>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closePasswordModal()">Cancel</button>
+          <button class="btn btn-gold" onclick="showToast('Password updated')">Update Password</button>
+        </div>
+          </form>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast">✓ Changes saved</div>
+
+    <script>
+      let dirty = false;
+
+      function markDirty() {
+        dirty = true;
+        document.getElementById('save-bar').classList.add('visible');
+      }
+
+      function saveChanges() {
+        // Just submit the form to the backend!
+        document.getElementById('profile-form').submit();
+      }
+
+      function discardChanges() {
+        dirty = false;
+        document.getElementById('save-bar').classList.remove('visible');
+      }
+
+      // Danger modal
+      let currentAction = null;
+      function openModal(action) {
+        currentAction = action;
+        const modal = document.getElementById('danger-modal');
+        const title = document.getElementById('modal-title');
+        const body  = document.getElementById('modal-body');
+        const btn   = document.getElementById('modal-confirm-btn');
+
+        // ADD THIS LINE RIGHT HERE:
+        const actionInput = document.getElementById('danger-action-input');
+
+        if (action === 'clear') {
+          title.textContent = 'Clear All Transactions?';
+          body.innerHTML = 'This will <strong>permanently delete</strong> every transaction in your history. Your account will remain, but all financial records will be wiped. This cannot be undone.';
+          btn.textContent = 'Yes, clear everything';
+          actionInput.value = 'delete_all';
+        } else {
+          title.textContent = 'Delete Account?';
+          body.innerHTML = 'Your account and <strong>all associated data</strong> will be permanently removed. You will be logged out immediately. This cannot be undone.';
+          btn.textContent = 'Yes, delete my account';
+          actionInput.value = 'delete_account';
+        }
+        modal.classList.add('open');
+      }
+      function closeModal() {
+        document.getElementById('danger-modal').classList.remove('open');
+      }
+      // function confirmDanger() {
+        // closeModal();
+        // if (currentAction === 'delete') {
+          // showToast('Account deleted');
+          // setTimeout(() => { window.location.href = 'authentication.html'; }, 1200);
+        // } else {
+          // showToast('All transactions cleared');
+        // }
+      // }
+
+      // Password modal
+      function openPasswordModal() {
+        document.getElementById('password-modal').classList.add('open');
+      }
+      // function closePasswordModal() {
+        // document.getElementById('password-modal').classList.remove('open');
+      // }
+
+      // Close modals on overlay click
+      document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', e => {
+          if (e.target === overlay) {
+            overlay.classList.remove('open');
+          }
+        });
+      });
+
+      // Toast
+      function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2800);
+      }
+
+      // Accent swatches (visual only — hook into CSS var in a real app)
+      function setAccent(el) {
+        document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+        el.classList.add('active');
+        markDirty();
+      }
+
+      // Export (stub)
+      function handleExport() {
+        showToast('⬇ Export started…');
+      }
+
+      // Warn before unload if dirty
+      window.addEventListener('beforeunload', e => {
+        if (dirty) { e.preventDefault(); e.returnValue = ''; }
+      });
+    </script>
+  </body>
+</html>
