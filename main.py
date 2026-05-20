@@ -1,8 +1,15 @@
-from flask import Flask, request, render_template, redirect, url_for, flash
+from flask import Flask, request, render_template, redirect, url_for, flash, Response
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager , login_user, current_user, UserMixin, logout_user
 from datetime import datetime as dt
+import csv
+import io
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from flask_login import login_required
 
 day:list[str] = [
     'Monday', 'Tuesday',
@@ -175,7 +182,7 @@ def home():
             month=f'{actual_month(now.month)}',
             user_id=current_user.id,
             note=note,
-            dateMonth=f'{actual_month(now.month)}',
+            dateMonth=f'{date_month(date_=date, month_=month)}',
             year=now.year,
         )
         db.session.add(new_transaction)
@@ -260,6 +267,51 @@ def signup():
     return render_template("signup.html", logged_in=False)
 #todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
+@app.route("/transaction-history")
+@login_required
+def transaction_history():
+    # 1. Get the filter from the URL (defaults to 'all' if none provided)
+    filter_type = request.args.get('filter', 'all')
+
+    # Calculate current and last month safely
+    current_month_str = actual_month(now.month)
+    current_year_str = str(now.year)
+
+    last_month_num = 12 if now.month == 1 else now.month - 1
+    last_month_year_str = str(now.year - 1) if now.month == 1 else str(now.year)
+    last_month_str = actual_month(last_month_num)
+
+    # Base query for the logged-in user
+    base_query = Transaction.query.filter_by(user_id=current_user.id)
+
+    # 2. Apply Filters
+    if filter_type == 'income':
+        transactions = base_query.filter_by(transaction_type='income', month=current_month_str,
+                                            year=current_year_str).all()
+        page_title = "Income"
+    elif filter_type == 'expenses':
+        transactions = base_query.filter_by(transaction_type='expenses', month=current_month_str,
+                                            year=current_year_str).all()
+        page_title = "Expenses"
+    elif filter_type == 'last_month_income':
+        transactions = base_query.filter_by(transaction_type='income', month=last_month_str,
+                                            year=last_month_year_str).all()
+        page_title = "Last Month Income"
+    elif filter_type == 'last_month_expenses':
+        transactions = base_query.filter_by(transaction_type='expenses', month=last_month_str,
+                                            year=last_month_year_str).all()
+        page_title = "Last Month Expenses"
+    else:  # 'net' or 'all'
+        transactions = base_query.all()
+        page_title = "Net Total"
+
+    # Sort descending by ID so newest is on top
+    transactions.sort(key=lambda x: x.id, reverse=True)
+
+    return render_template("transaction-history.html", transactions=transactions, page_title=page_title,
+                           filter_type=filter_type)
+#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
+
 @app.route("/settings", methods=["GET", "POST"])
 def settings():
     name = current_user.username
@@ -320,6 +372,119 @@ def settings():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
+
+@app.route("/export")
+def export():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+
+    transactions = Transaction.query.filter_by(user_id=current_user.id).all()
+    user = User.query.filter_by(id=current_user.id).first()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # Header row
+    writer.writerow(['Date', 'Category', 'Type', 'Amount', 'Note', 'Month', 'Year'])
+
+    # Data rows
+    for t in transactions:
+        writer.writerow([t.dateMonth, t.category, t.transaction_type,
+                         f"{t.amount:.2f}", t.note, t.month, t.year])
+
+    output.seek(0)
+    print(user.username)
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={"Content-Disposition": f"attachment; filename={user.username} Transactions.csv"}
+    )
+#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
+
+@app.route("/export-pdf")
+def export_pdf():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+
+    transactions = Transaction.query.filter_by(user_id=current_user.id).all()
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # Title
+    elements.append(Paragraph(f"Transaction History — {current_user.username}", styles['Title']))
+    elements.append(Spacer(1, 20))
+
+    # Table header + rows
+    data = [['Date', 'Category', 'Type', 'Amount', 'Note']]
+    for t in transactions:
+        data.append([t.dateMonth, t.category, t.transaction_type,
+                     f"GH₵ {t.amount:.2f}", t.note or '—'])
+
+    table = Table(data, colWidths=[80, 100, 80, 80, 180])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2dcc8f')),
+        ('TEXTCOLOR',  (0, 0), (-1, 0), colors.white),
+        ('FONTNAME',   (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE',   (0, 0), (-1, 0), 11),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.HexColor('#13141a'), colors.HexColor('#1d1f28')]),
+        ('TEXTCOLOR',  (0, 1), (-1, -1), colors.HexColor('#f0f0f0')),
+        ('FONTNAME',   (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE',   (0, 1), (-1, -1), 9),
+        ('GRID',       (0, 0), (-1, -1), 0.5, colors.HexColor('#333')),
+        ('PADDING',    (0, 0), (-1, -1), 8),
+    ]))
+    elements.append(table)
+
+    doc.build(elements)
+    buffer.seek(0)
+
+    return Response(
+        buffer.getvalue(),
+        mimetype='application/pdf',
+        headers={"Content-Disposition": f"attachment; filename={current_user.username}.pdf"}
+    )
+#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
+
+@app.route("/edit-transaction/<int:tx_id>", methods=["POST"])
+@login_required
+def edit_transaction(tx_id):
+    tx = Transaction.query.get_or_404(tx_id)
+
+    # Security check: only allow editing if they own it
+    if tx.user_id == current_user.id:
+        try:
+            # Safely grab and convert the amount
+            amount_str = request.form.get('amount')
+            tx.amount = float(amount_str)
+        except ValueError:
+            flash("Error: Invalid amount entered.")
+            return redirect(request.referrer or url_for('transaction_history'))
+
+        # Grab the rest of the fields (these won't change unless the user actually changed them now!)
+        tx.category = request.form.get('category')
+        tx.transaction_type = request.form.get('transaction_type')
+
+        note = request.form.get('note')
+        tx.note = note if note else '—'
+
+        db.session.commit()
+
+    return redirect(request.referrer or url_for('transaction_history'))
+#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
+
+@app.route("/delete-transaction/<int:tx_id>", methods=["POST"])
+@login_required
+def delete_transaction(tx_id):
+    tx = Transaction.query.get_or_404(tx_id)
+    # Security check: only allow deleting if they own it
+    if tx.user_id == current_user.id:
+        db.session.delete(tx)
+        db.session.commit()
+    return redirect(request.referrer or url_for('transaction_history'))
 #todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 if __name__ == '__main__':

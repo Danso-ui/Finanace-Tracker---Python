@@ -276,6 +276,7 @@ tbody tr.data-row td {
   white-space: nowrap;
 }
 .type-pill.income {
+  border-top: none;
   background: rgba(45,204,143,0.12);
   color: #2dcc8f;
 }
@@ -337,4 +338,16 @@ tbody tr.data-row td {
   background: #d4881c;
   color: #000;
   box-shadow: 0 0 14px rgba(212, 135, 28, 0.596);
+}
+
+.incomes {
+    /* border-top: 5px solid #2bd58e; */
+    /* background: linear-gradient(135deg, rgba(43, 213, 142, 0.08) 0%, #15171e 40%, #0d0e12 100%); */
+    color: #2bd58e;
+}
+
+.incomess {
+    border-top: none;
+    /* background: linear-gradient(135deg, rgba(43, 213, 142, 0.08) 0%, #15171e 40%, #0d0e12 100%);
+    color: #2bd58e; */
 }

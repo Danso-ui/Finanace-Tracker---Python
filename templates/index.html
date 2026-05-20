@@ -61,29 +61,29 @@
     </header>
 
     <main class="cards">
-      <a href="transaction-history.html" class="card income">
+      <a href="{{ url_for('transaction_history', filter='income') }}" class="card income">
         <p class="card-label">INCOME</p>
         <p class="card-amount">GH₵ {{ "%.2f" | format(this_income) }}</p>
         <p class="card-period">THIS MONTH</p>
       </a>
 
-      <div class="card net">
+      <a href="{{ url_for('transaction_history', filter='net') }}" class="card net" style="text-decoration: none;">
         <p class="card-label">NET TOTAL</p>
         <p class="card-amount">GH₵ {{ "%.2f" | format(total) }}</p>
         <p class="card-period">BALANCE</p>
-      </div>
-
-      <a href="transaction-history.html" class="card expenses">
-        <p class="card-label">EXPENSES</p>
-        <p class="card-amount">GH₵ {{ "%.2f" | format(this_expense) }}</p>
-        <p class="card-period">vs. LAST MONTH</p>
       </a>
 
-      <div class="card income">
+      <a href="{{ url_for('transaction_history', filter='expenses') }}" class="card expenses">
+        <p class="card-label">EXPENSES</p>
+        <p class="card-amount">GH₵ {{ "%.2f" | format(this_expense) }}</p>
+        <p class="card-period">THIS MONTH</p>
+      </a>
+
+      <a href="{{ url_for('transaction_history', filter='last_month_income') }}" class="card income">
         <p class="card-label">LAST MONTH INCOME</p>
         <p class="card-amount">GH₵ {{ "%.2f" | format(last_income) }}</p>
         <p class="card-period">LAST MONTH</p>
-      </div>
+      </a>
 
       <div class="card per">
         <p class="card-label">SAVINGS RATE</p>
@@ -91,11 +91,11 @@
         <p class="card-period">IN ALL</p>
       </div>
 
-      <div class="card expenses">
+      <a href="{{ url_for('transaction_history', filter='last_month_expenses') }}" class="card expenses">
         <p class="card-label">LAST MONTH EXPENSES</p>
         <p class="card-amount">GH₵ {{ "%.2f" | format(last_expense) }}</p>
         <p class="card-period">LAST MONTH</p>
-      </div>
+      </a>
     </main>
 
     <!-- Modal Overlay -->
@@ -120,21 +120,21 @@
           <label for="category">Category:</label>
           <select name="category" id="category">
             <optgroup label="Income">
-              <option value="salary">Salary</option>
-              <option value="freelance">Freelance</option>
-              <option value="investment">Investment</option>
-              <option value="gift">Gift</option>
-              <option value="other_income">Other</option>
+              <option value="Salary">Salary</option>
+              <option value="Freelance">Freelance</option>
+              <option value="Investment">Investment</option>
+              <option value="Gift">Gift</option>
+              <option value="Other Income">Other</option>
             </optgroup>
             <optgroup label="Expenses">
-              <option value="food">Food</option>
-              <option value="rent">Rent</option>
-              <option value="transport">Transport</option>
-              <option value="utilities">Utilities</option>
-              <option value="health">Health</option>
-              <option value="entertainment">Entertainment</option>
-              <option value="shopping">Shopping</option>
-              <option value="other_expenses">Other</option>
+              <option value="Food">Food</option>
+              <option value="Rent">Rent</option>
+              <option value="Transport">Transport</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Health">Health</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Other Expenses">Other</option>
             </optgroup>
           </select>
 

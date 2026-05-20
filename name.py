@@ -1,3 +1,4 @@
-name = 'David'
+from main import actual_month, now, date_month, date, month
 
-print(name.split(" "))
+print(actual_month(now.month))
+print(date_month(date_=date, month_=month))

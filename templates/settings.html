@@ -530,7 +530,8 @@
               <div class="row-title">Export All Data</div>
               <div class="row-desc">Download your full transaction history as CSV</div>
             </div>
-            <button class="btn btn-ghost" onclick="handleExport()">Export CSV</button>
+            <button class="btn btn-ghost" onclick="window.location.href='{{ url_for('export') }}'">Export CSV</button>
+              <button class="btn btn-ghost" onclick="window.location.href='{{ url_for('export_pdf') }}'">Export PDF</button>
           </div>
           <!-- <div class="setting-row last">
             <div class="row-info">
@@ -608,7 +609,7 @@
 
           Enter your current password, then choose a new one.
         </div>
-          <form method="post">
+          <form method="post" action="{{ url_for('settings') }}">
         <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
 
           <input class="setting-input" style="width:100%" type="password" placeholder="Current password" name="oldPassword" />

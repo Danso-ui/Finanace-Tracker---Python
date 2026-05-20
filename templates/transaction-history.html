@@ -3,130 +3,338 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Income Transaction History</title>
-    <link rel="stylesheet" href="../static/bootstrap.min.css">
-    <link rel="stylesheet" href="../static/history.css" />
+    <title>Transaction History — Finance Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='history.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap" rel="stylesheet" />
+    <style>
+      /* Toggle buttons — unselected */
+      .toggle-container .toggle-btn {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: #888;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease-in-out;
+      }
+      .toggle-container .toggle-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+      .toggle-container .toggle-btn.income.active {
+        background-color: #2dcc8f;
+        color: #fff;
+        border-color: #2dcc8f;
+        font-weight: bold;
+      }
+      .toggle-container .toggle-btn.expenses.active {
+        background-color: #e74c3c;
+        color: #fff;
+        border-color: #e74c3c;
+        font-weight: bold;
+      }
+
+      /* ── Fix: month-group uses <td> not <th>, so re-style it ── */
+      tr.month-group td {
+        padding: 12px 16px;
+        background: #16181f;
+        border-top: 2px solid rgba(255, 255, 255, 0.07);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #f0f0f0;
+        vertical-align: middle;
+      }
+      tr.month-group td.month-count-col {
+        color: #6b6f7e;
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        text-align: right;
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: 0;
+      }
+
+      /* ── Fix: actions cell — use normal td layout, not flex ── */
+      td.actions-cell {
+        text-align: right;
+        padding-right: 16px !important;
+        white-space: nowrap;
+        vertical-align: middle;
+      }
+      td.actions-cell .btn-edit {
+        display: inline-block;
+        padding: 4px 12px;
+        font-size: 0.75rem;
+        font-family: 'Syne', sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 6px;
+        background: rgba(123, 140, 222, 0.12);
+        color: #7b8cde;
+        border: 1px solid rgba(123, 140, 222, 0.35);
+        margin-right: 6px;
+        transition: background 0.15s;
+      }
+      td.actions-cell .btn-edit:hover {
+        background: rgba(123, 140, 222, 0.25);
+      }
+      td.actions-cell .btn-delete {
+        display: inline-block;
+        padding: 4px 12px;
+        font-size: 0.75rem;
+        font-family: 'Syne', sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 6px;
+        background: rgba(204, 45, 45, 0.12);
+        color: #cc2d2d;
+        border: 1px solid rgba(204, 45, 45, 0.35);
+        transition: background 0.15s;
+      }
+      td.actions-cell .btn-delete:hover {
+        background: rgba(204, 45, 45, 0.25);
+      }
+
+      /* ── Fix: export buttons side-by-side ── */
+      .export-row {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        padding: 40px 0;
+      }
+      .export-row .export {
+        display: inline-block;
+        width: 160px;
+        margin: 0;
+        text-align: center;
+        padding: 10px 0;
+        border-radius: 6px;
+      }
+    </style>
   </head>
+
   <body>
-    <!-- TOPBAR -->
     <div class="topbar">
       <div class="topbar-left">
-        <a class="back-btn" href="index.html"> ← Back </a>
+        <a class="back-btn" href="{{ url_for('home') }}">← Back</a>
         <div class="divider-v"></div>
-        <span class="topbar-brand">Finance Tracker</span>
-      </div>
-      <div class="topbar-right">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="{1.5}"
-          stroke="currentColor"
-          className="size-6"
-          class="profile"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-          />
-        </svg>
+        <span class="topbar-brand">FINANCE TRACKER</span>
       </div>
     </div>
 
-    <!-- PAGE HEADER -->
+    {% set income_list = transactions | selectattr('transaction_type', 'equalto', 'income') | list %}
+    {% set expense_list = transactions | selectattr('transaction_type', 'equalto', 'expenses') | list %}
+    {% set total_income = income_list | sum(attribute='amount') %}
+    {% set total_expenses = expense_list | sum(attribute='amount') %}
+
+    {% if filter_type in ['income', 'last_month_income'] %}
+      {% set display_total = total_income %}
+      {% set sign = '+' %}
+      {% set color_class = 'income' %}
+    {% elif filter_type in ['expenses', 'last_month_expenses'] %}
+      {% set display_total = total_expenses %}
+      {% set sign = '-' %}
+      {% set color_class = 'expense' %}
+    {% else %}
+      {% set display_total = total_income - total_expenses %}
+      {% set sign = '+' if display_total >= 0 else '' %}
+      {% set color_class = 'income' if display_total >= 0 else 'expense' %}
+    {% endif %}
+
     <div class="page-header">
       <div class="page-title-group">
         <div class="page-eyebrow">Transaction History</div>
-        <div class="page-title">Income</div>
+        <div class="page-title {{ color_class }}s">{{ page_title }}</div>
       </div>
       <div class="page-summary">
-        <div class="summary-label">Total Earned</div>
-        <div class="summary-total">+GH₵0.00</div>
-        <div class="summary-count">5 transactions</div>
+        <div class="summary-label">{{ 'Balance' if filter_type == 'net' else ('Total Earned' if color_class == 'income' else 'Total Spent') }}</div>
+        <div class="summary-total {{ color_class }}s">
+          {{ sign }}GH₵{{ "%.2f"|format(display_total) }}
+        </div>
+        <div class="summary-count">{{ transactions | length }} transactions</div>
       </div>
     </div>
 
-    <!-- TABLE -->
     <div class="table-wrap">
-      <table>
-        <thead>
-          <tr class="col-headers">
-            <th>Date</th>
-            <th>Category</th>
-            <th>Type</th>
-            <th>Note</th>
-            <th class="right">Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- MAY 2026 -->
-          <tr class="month-group">
-            <th class="month-name-cell" colspan="2">May 2026</th>
-            <th class="month-count-cell">3 transactions</th>
-            <th></th>
-            <th class="month-total-cell">+GH₵0.00</th>
-          </tr>
-          <tr class="data-row">
-            <td class="date-cell">May 14</td>
-            <td class="category-cell">Salary</td>
-            <td><span class="type-pill income">↑ Income</span></td>
-            <td class="note-cell">Monthly pay</td>
-            <td class="amount-cell income">+GH₵0.00</td>
-          </tr>
-          <tr class="data-row">
-            <td class="date-cell">May 10</td>
-            <td class="category-cell">Freelance</td>
-            <td><span class="type-pill income">↑ Income</span></td>
-            <td class="note-cell">Logo project</td>
-            <td class="amount-cell income">+GH₵0.00</td>
-          </tr>
-          <tr class="data-row">
-            <td class="date-cell">May 3</td>
-            <td class="category-cell">Investment</td>
-            <td><span class="type-pill income">↑ Income</span></td>
-            <td class="note-cell">Dividends Q1</td>
-            <td class="amount-cell income">+GH₵0.00</td>
-          </tr>
-          <tr class="data-row">
-            <td class="date-cell">May 1</td>
-            <td class="category-cell">Freelance</td>
-            <td><span class="type-pill income">↑ Income</span></td>
-            <td class="note-cell">—</td>
-            <td class="amount-cell income">+GH₵0.00</td>
-          </tr>
+      {% if transactions %}
+        {% set ns = namespace(current_month='', current_year='') %}
+        <table>
+          <thead>
+            <tr class="col-headers">
+              <th>Date</th>
+              <th>Category</th>
+              <th>Type</th>
+              <th>Note</th>
+              <th class="right">Amount</th>
+              <th class="right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in transactions %}
 
-          <!-- APRIL 2026 -->
-          <tr class="month-group">
-            <th class="month-name-cell" colspan="2">April 2026</th>
-            <th class="month-count-cell">2 transactions</th>
-            <th></th>
-            <th class="month-total-cell">+GH₵0.00</th>
-          </tr>
-          <tr class="data-row">
-            <td class="date-cell">Apr 15</td>
-            <td class="category-cell">Salary</td>
-            <td><span class="type-pill income">↑ Income</span></td>
-            <td class="note-cell">Monthly pay</td>
-            <td class="amount-cell income">+GH₵0.00</td>
-          </tr>
-          <tr class="data-row">
-            <td class="date-cell">Apr 4</td>
-            <td class="category-cell">Gift</td>
-            <td><span class="type-pill income">↑ Income</span></td>
-            <td class="note-cell">Birthday</td>
-            <td class="amount-cell income">+GH₵0.00</td>
-          </tr>
-        </tbody>
-      </table>
+              {% if t.month != ns.current_month or t.year|string != ns.current_year %}
+                {% set ns.current_month = t.month %}
+                {% set ns.current_year = t.year|string %}
+                {% set month_txns = transactions | selectattr('month', 'equalto', t.month) | selectattr('year', 'equalto', t.year) | list %}
+                <tr class="month-group">
+                  <td colspan="4">{{ t.month }} {{ t.year }}</td>
+                  <td colspan="2" class="month-count-col">{{ month_txns | length }} transactions</td>
+                </tr>
+              {% endif %}
+
+              <tr class="data-row">
+                <td class="date-cell">{{ t.dateMonth }}</td>
+                <td class="category-cell">{{ t.category }}</td>
+                <td>
+                  <span class="type-pill {{ 'income' if t.transaction_type == 'income' else 'expense' }}">
+                    {{ '↑ Income' if t.transaction_type == 'income' else '↓ Expense' }}
+                  </span>
+                </td>
+                <td class="note-cell">{{ t.note or '—' }}</td>
+                <td class="amount-cell {{ 'income' if t.transaction_type == 'income' else 'expense' }}s">
+                  {{ '+' if t.transaction_type == 'income' else '-' }}GH₵{{ "%.2f"|format(t.amount) }}
+                </td>
+                <td class="actions-cell">
+                  <button type="button" class="btn-edit"
+                          data-id="{{ t.id }}"
+                          data-amount="{{ t.amount }}"
+                          data-category="{{ t.category }}"
+                          data-type="{{ t.transaction_type }}"
+                          data-note="{{ t.note }}"
+                          onclick="openEditModalSafely(this)">
+                    Edit
+                  </button>
+                  <form action="{{ url_for('delete_transaction', tx_id=t.id) }}" method="POST"
+                        style="display:inline; margin:0;"
+                        onsubmit="return confirm('Are you sure you want to delete this transaction?');">
+                    <button type="submit" class="btn-delete">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="empty">
+          <div class="empty-icon">📭</div>
+          <p>No transactions found for this category.</p>
+        </div>
+      {% endif %}
     </div>
 
-    <button class="export btn">Export History</button>
+    <div class="export-row">
+      <a href="{{ url_for('export') }}" class="export btn">Export CSV</a>
+      <a href="{{ url_for('export_pdf') }}" class="export btn">Export PDF</a>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal-overlay" class="modal-overlay hidden" onclick="handleEditOverlayClick(event)">
+      <div class="modal-form">
+        <header class="modal-top">
+          <p>Edit Transaction</p>
+          <button type="button" onclick="closeEditModal()" class="close" aria-label="Close"></button>
+        </header>
+
+        <div class="toggle-container">
+          <button type="button" id="edit-toggle-income" class="toggle-btn income" onclick="setEditToggle('income')">Income</button>
+          <button type="button" id="edit-toggle-expenses" class="toggle-btn expenses" onclick="setEditToggle('expenses')">Expenses</button>
+        </div>
+
+        <form id="edit-form" action="" method="POST">
+          <input type="hidden" name="transaction_type" id="edit_transaction_type" value="" />
+
+          <label for="edit-amount">Amount:</label>
+          <input type="number" name="amount" id="edit-amount" class="modal-input" step="0.01" placeholder="0.00" required />
+
+          <label for="edit-category">Category:</label>
+          <select name="category" id="edit-category" class="modal-input" required>
+            <optgroup label="Income">
+              <option value="Salary">Salary</option>
+              <option value="Freelance">Freelance</option>
+              <option value="Investment">Investment</option>
+              <option value="Gift">Gift</option>
+              <option value="Other Income">Other</option>
+            </optgroup>
+            <optgroup label="Expenses">
+              <option value="Food">Food</option>
+              <option value="Rent">Rent</option>
+              <option value="Transport">Transport</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Health">Health</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Other Expenses">Other</option>
+            </optgroup>
+          </select>
+
+          <label for="edit-note">Note (Optional):</label>
+          <textarea name="note" id="edit-note" class="modal-input" rows="2"></textarea>
+
+          <footer class="modal-footer">
+            <button type="button" class="modal-btn cancel" onclick="closeEditModal()">Cancel</button>
+            <input type="submit" class="modal-btn submit" value="Save Changes" />
+          </footer>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      function openEditModal(id, amount, category, type, note) {
+        // 1. Point the form to the correct transaction route
+        document.getElementById('edit-form').action = "/edit-transaction/" + id;
+
+        // 2. Pre-fill the text fields
+        document.getElementById('edit-amount').value = amount;
+        document.getElementById('edit-category').value = category;
+        document.getElementById('edit-note').value = note === '—' ? '' : note;
+
+        // 3. Set the correct toggle active state
+        setEditToggle(type);
+
+        // 4. Show the modal using YOUR custom CSS classes
+        const overlay = document.getElementById('edit-modal-overlay');
+        overlay.classList.remove('hidden');
+        overlay.classList.add('visible'); // This triggers your CSS animation!
+      }
+
+      function closeEditModal() {
+        const overlay = document.getElementById('edit-modal-overlay');
+        overlay.classList.remove('visible');
+        overlay.classList.add('hidden'); // This hides it smoothly!
+      }
+
+      function closeEditModal() {
+        const overlay = document.getElementById('edit-modal-overlay');
+        overlay.classList.add('hidden');
+        overlay.style.display = 'none';
+      }
+
+      function handleEditOverlayClick(e) {
+        if (e.target === document.getElementById('edit-modal-overlay')) {
+          closeEditModal();
+        }
+      }
+
+      function setEditToggle(type) {
+        document.getElementById('edit-toggle-income').classList.remove('active');
+        document.getElementById('edit-toggle-expenses').classList.remove('active');
+        document.getElementById('edit-toggle-' + type).classList.add('active');
+        document.getElementById('edit_transaction_type').value = type;
+      }
+
+      function openEditModalSafely(btn) {
+        openEditModal(
+          btn.getAttribute('data-id'),
+          btn.getAttribute('data-amount'),
+          btn.getAttribute('data-category'),
+          btn.getAttribute('data-type'),
+          btn.getAttribute('data-note')
+        );
+      }
+    </script>
   </body>
 </html>
