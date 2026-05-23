@@ -10,6 +10,10 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from flask_login import login_required
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 day:list[str] = [
     'Monday', 'Tuesday',
@@ -50,7 +54,7 @@ def date_month(date_, month_):
 
 #=== === === === === === === === === === === === === === === === === === === === === === === === === === === === === ===
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret-key-goes-here'
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finance-tracker.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
