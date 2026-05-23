@@ -107,7 +107,7 @@ with app.app_context():
 
     if not User.query.first():
         firstUser = User(
-            id =1000,
+            # id =1000,
             username="dummy",
             email="dummy@gmail.com",
             password_hash=secure_password
