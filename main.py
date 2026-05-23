@@ -497,5 +497,5 @@ def delete_transaction(tx_id):
     return redirect(request.referrer or url_for('transaction_history'))
 #todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#     app.run(debug=True)
