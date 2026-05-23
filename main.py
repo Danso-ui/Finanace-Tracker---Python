@@ -55,7 +55,13 @@ def date_month(date_, month_):
 #=== === === === === === === === === === === === === === === === === === === === === === === === === === === === === ===
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finance-tracker.db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finance-tracker.db'
+database_url = os.getenv('POSTGRES_URL', os.getenv('DATABASE_URL', 'sqlite:///finance-tracker.db'))
+
+if database_url and database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
