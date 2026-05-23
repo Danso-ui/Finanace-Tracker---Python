@@ -103,32 +103,32 @@ class Transaction(db.Model):
 with app.app_context():
     db.create_all()
 
-    secure_password = generate_password_hash('dummy1!')
-
-    if not User.query.first():
-        firstUser = User(
-            # id =1000,
-            username="dummy",
-            email="dummy@gmail.com",
-            password_hash=secure_password
-        )
-        db.session.add(firstUser)
-
-        first_transaction = Transaction(
-            id=5000,
-            amount=0.00,
-            category="System Setup",
-            transaction_type="income",
-            month=actual_month(month),
-            year=now.year,
-            dateMonth=date_month(date, month),
-            note="Some light setup",
-            user_id=firstUser.id,
-        )
-        db.session.add(first_transaction)
-
-        db.session.commit()
-        print("Set starting ID to 1001!")
+    # secure_password = generate_password_hash('dummy1!')
+    #
+    # if not User.query.first():
+    #     firstUser = User(
+    #         # id =1000,
+    #         username="dummy",
+    #         email="dummy@gmail.com",
+    #         password_hash=secure_password
+    #     )
+    #     db.session.add(firstUser)
+    #
+    #     first_transaction = Transaction(
+    #         id=5000,
+    #         amount=0.00,
+    #         category="System Setup",
+    #         transaction_type="income",
+    #         month=actual_month(month),
+    #         year=now.year,
+    #         dateMonth=date_month(date, month),
+    #         note="Some light setup",
+    #         user_id=firstUser.id,
+    #     )
+    #     db.session.add(first_transaction)
+    #
+    #     db.session.commit()
+    #     print("Set starting ID to 1001!")
 #=== === === === === === === === === === === === === === === === === === === === === === === === === === === === === ===
 
 @app.route("/", methods=['GET', 'POST'])
