@@ -346,6 +346,11 @@ tbody tr.data-row td {
     color: #2bd58e;
 }
 
+.expenses {
+    border-top: none;
+    background: none;
+}
+
 .incomess {
     border-top: none;
     /* background: linear-gradient(135deg, rgba(43, 213, 142, 0.08) 0%, #15171e 40%, #0d0e12 100%);
