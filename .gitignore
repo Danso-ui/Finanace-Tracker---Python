@@ -1,4 +1,5 @@
 __pycache__/
 venv/
-finance-tracker.db
+instance/
+*.db
 .env
