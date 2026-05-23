@@ -4,3 +4,4 @@ Flask-WTF
 Flask-Login
 reportlab
 python-dotenv
+psycopg2-binary
