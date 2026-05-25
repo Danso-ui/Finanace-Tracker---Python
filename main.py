@@ -180,6 +180,9 @@ def home():
     lme = sum(t.amount for t in last_expense) if last_expense else 0
 
     if request.method == 'POST':
+        # Get the real-time date right when they click submit
+        current_time = dt.now()
+        
         trans_type = request.form.get('transaction_type')
         amount = request.form.get('amount')
         category = request.form.get('category')
@@ -189,11 +192,11 @@ def home():
             amount=amount,
             category=category,
             transaction_type=trans_type,
-            month=f'{actual_month(now.month)}',
+            month=f'{actual_month(current_time.month)}',
             user_id=current_user.id,
             note=note,
-            dateMonth=f'{date_month(date_=date, month_=month)}',
-            year=now.year,
+            dateMonth=f'{date_month(date_=current_time.day, month_=current_time.month)}',
+            year=current_time.year,
         )
         db.session.add(new_transaction)
         db.session.commit()
@@ -254,20 +257,6 @@ def signup():
             db.session.add(new_user)
             db.session.commit()
 
-            initial_transaction = Transaction(
-                amount=0.00,
-                category="Beginning",
-                transaction_type="income",
-                month=actual_month(month),
-                year=now.year,
-                dateMonth=date_month(date, month),
-                note="The starting point",
-                user_id=new_user.id
-            )
-            db.session.add(initial_transaction)
-            db.session.commit()
-            print(f"PASSWORD MATCH: {password}")
-            print(f"PASSWORD MATCH: {confirm_password}")
             login_user(new_user)
             return redirect(url_for('home'))
         else:
