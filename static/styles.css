@@ -390,3 +390,46 @@ input.modal-btn.submit {
 input.modal-btn.submit:hover {
   filter: brightness(1.1);
 }
+
+
+/* =========================================
+   RESPONSIVE DESIGN (Tablets & Mobile)
+   ========================================= */
+
+/* Tablets (Under 960px) */
+@media (max-width: 960px) {
+  .cards {
+    width: 100%;
+    max-width: 700px;
+    padding: 0 20px;
+    grid-template-columns: 1fr 1fr; /* 2 columns */
+    margin: 60px auto;
+  }
+}
+
+/* Mobile Phones (Under 600px) */
+@media (max-width: 600px) {
+  .cards {
+    grid-template-columns: 1fr; /* 1 column */
+    margin: 40px auto;
+  }
+  
+  .card {
+    width: 100%; /* Take up full width of screen */
+    max-width: none;
+  }
+
+  .modal-form {
+    width: 90%; /* Prevent modal from spilling off screen */
+    padding: 20px;
+  }
+
+  .modal-footer {
+    grid-template-columns: 1fr; /* Stack buttons vertically on small screens */
+  }
+
+  .new_data {
+    padding: 9px 12px;
+    font-size: 12px; /* Slightly smaller button text */
+  }
+}

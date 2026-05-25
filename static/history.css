@@ -356,3 +356,48 @@ tbody tr.data-row td {
     /* background: linear-gradient(135deg, rgba(43, 213, 142, 0.08) 0%, #15171e 40%, #0d0e12 100%);
     color: #2bd58e; */
 }
+
+
+/* =========================================
+   RESPONSIVE DESIGN (Tablets & Mobile)
+   ========================================= */
+
+@media (max-width: 768px) {
+  /* Reduce padding on the sides */
+  .topbar, .page-header, .table-wrap {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .page-summary {
+    text-align: left;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  /* Make table scrollable horizontally on phones */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; 
+  }
+
+  /* Stack export buttons */
+  .export-row {
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .export-row .export {
+    width: 100%;
+    max-width: 300px;
+  }
+}
