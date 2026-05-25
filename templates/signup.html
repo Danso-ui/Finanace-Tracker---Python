@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Finance App - Sign Up</title>
-    <link rel="stylesheet" href=" {{ url_for('static', filename='signup_styles.css') }} " />
+    <link
+      rel="stylesheet"
+      href=" {{ url_for('static', filename='signup_styles.css') }} "
+    />
   </head>
   <body>
     <div class="auth">
@@ -26,13 +29,10 @@
         Sign Up
       </h1>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <p style="text-align: center;">{{ message }}</p>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+      {% with messages = get_flashed_messages() %} {% if messages %} {% for
+      message in messages %}
+      <p style="text-align: center">{{ message }}</p>
+      {% endfor %} {% endif %} {% endwith %}
 
       <form action="{{ url_for('signup') }}" id="signupForm" method="post">
         <div class="error-message" id="errorMessage"></div>
@@ -64,16 +64,50 @@
             placeholder="Your password"
             required
           />
+          <button type="button" class="toggle-password">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                d="M12 5.5c-3.923 0-7.394 2.414-9.89 6.031a.5.5 0 0 0 0 .538C4.606 15.686 8.077 18.1 12 18.1c3.923 0 7.394-2.414 9.89-6.031a.5.5 0 0 0 0-.538C19.394 7.914 15.923 5.5 12 5.5zm-8.243 6.3c2.08-2.984 5.013-5 8.243-5 3.23 0 6.162 2.016 8.243 5-2.08 2.984-5.013 5-8.243 5-3.23 0-6.162-2.016-8.243-5z"
+              />
+              <path
+                d="M12 9a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm-2 3.5a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"
+              />
+            </svg>
+          </button>
         </div>
 
         <label for="confirmPassword">Confirm Password</label>
-        <input
-          type="password"
-          name="confirmPassword"
-          id="confirmPassword"
-          placeholder="Confirm your password"
-          required
-        />
+        <div class="password-field">
+          <input
+            type="password"
+            name="confirmPassword"
+            id="confirmPassword"
+            placeholder="Confirm your password"
+            required
+          />
+          <button type="button" class="toggle-password">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                d="M12 5.5c-3.923 0-7.394 2.414-9.89 6.031a.5.5 0 0 0 0 .538C4.606 15.686 8.077 18.1 12 18.1c3.923 0 7.394-2.414 9.89-6.031a.5.5 0 0 0 0-.538C19.394 7.914 15.923 5.5 12 5.5zm-8.243 6.3c2.08-2.984 5.013-5 8.243-5 3.23 0 6.162 2.016 8.243 5-2.08 2.984-5.013 5-8.243 5-3.23 0-6.162-2.016-8.243-5z"
+              />
+              <path
+                d="M12 9a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm-2 3.5a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"
+              />
+            </svg>
+          </button>
+        </div>
 
         <button type="submit">Sign Up</button>
         <p>
@@ -82,5 +116,28 @@
         </p>
       </form>
     </div>
+    <script>
+      const edgeEyeOpen = `
+        <path d="M12 5.5c-3.923 0-7.394 2.414-9.89 6.031a.5.5 0 0 0 0 .538C4.606 15.686 8.077 18.1 12 18.1c3.923 0 7.394-2.414 9.89-6.031a.5.5 0 0 0 0-.538C19.394 7.914 15.923 5.5 12 5.5zm-8.243 6.3c2.08-2.984 5.013-5 8.243-5 3.23 0 6.162 2.016 8.243 5-2.08 2.984-5.013 5-8.243 5-3.23 0-6.162-2.016-8.243-5z"/>
+        <path d="M12 9a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm-2 3.5a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"/>
+      `;
+
+      const edgeEyeSlashed = `
+        <path d="M3.28 2.22a.75.75 0 1 0-1.06 1.06l17.5 17.5a.75.75 0 1 0 1.06-1.06l-4.14-4.14A10.82 10.82 0 0 0 21.89 12a.5.5 0 0 0 0-.54C19.39 7.91 15.92 5.5 12 5.5c-1.84 0-3.54.51-5.02 1.38L3.28 2.22Zm4.67 4.67c1.2-.72 2.58-1.14 4.05-1.14 3.23 0 6.16 2.02 8.24 5a10.97 10.97 0 0 1-2.97 3.2L15 11.66a3.5 3.5 0 0 0-4.66-4.66L7.95 6.89Z"/>
+        <path d="M2.11 11.46c-.07.18-.07.36 0 .54 2.49 3.62 5.96 6.03 9.89 6.03 1.5 0 2.92-.37 4.19-1.01l-1.57-1.57A6.97 6.97 0 0 1 12 16.5c-3.23 0-6.16-2.02-8.24-5a11.12 11.12 0 0 1 1.77-2.1L4.1 7.98a10.8 10.8 0 0 0-1.99 3.48Z"/>
+        <path d="M9.8 13.94l2.25 2.25a3.5 3.5 0 0 1-2.25-2.25Z"/>
+      `;
+
+      document.querySelectorAll(".toggle-password").forEach((button) => {
+        button.addEventListener("click", function () {
+          const passwordField = this.parentElement.querySelector("input");
+          const eyeIcon = this.querySelector("svg");
+          const isPassword = passwordField.getAttribute("type") === "password";
+
+          passwordField.setAttribute("type", isPassword ? "text" : "password");
+          eyeIcon.innerHTML = isPassword ? edgeEyeSlashed : edgeEyeOpen;
+        });
+      });
+    </script>
   </body>
 </html>
