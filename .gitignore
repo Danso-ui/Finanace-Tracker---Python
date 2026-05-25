@@ -2,8 +2,4 @@ __pycache__/
 venv/
 instance/
 *.db
-<<<<<<< HEAD
 .env
-=======
-.env
->>>>>>> bcccec55c0360a329ccf1dca7ee225993896033b
