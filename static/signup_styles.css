@@ -6,8 +6,7 @@
 
 body {
   font-family: Arial, sans-serif;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(images/auth_background.jpg);
-  background-size: cover;
+  background: linear-gradient(135deg, #0e0f14 0%, #1a1c23 100%);
   display: flex;
   justify-content: center;
   align-items: center;
