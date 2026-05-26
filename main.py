@@ -33,10 +33,10 @@ def actual_month(fig:int) -> str:
     month_string:str = monthStr[num]
     return month_string
 
-def month_year(year_, month_):
+def month_year(year_, month_, day_):
     years: int = year_
     months: str = actual_month(month_)
-    return f"{months}, {date} {years}"
+    return f"{months}, {day_} {years}"
 
 def date_month(date_, month_):
     dates:int  = date_
@@ -105,7 +105,7 @@ def home():
     current_month = now.month
     current_day = now.day
 
-    today = month_year(current_year, current_month)
+    today = month_year(current_year, current_month, current_day)
 
     expenses = Transaction.query.filter_by(user_id=current_user.id, transaction_type='expenses').all()
     income = Transaction.query.filter_by(user_id=current_user.id, transaction_type='income').all()
