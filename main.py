@@ -26,12 +26,6 @@ monthStr:list[str] = [
     "July", "August", "September",
     "October", "November", "December"
 ]
-now = dt.now()
-
-# TODO: DATE, MONTH, YEAR
-date:int = now.day
-month:int = now.month
-year:int = now.year
 
 def actual_month(fig:int) -> str:
     num:int = fig - 1
@@ -71,8 +65,6 @@ login_manager.init_app(app)
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
-
 #=== === === === === === === === === === === === === === === === === === === === === === === === === === === === === ===
 
 class User(db.Model, UserMixin):
@@ -102,54 +94,62 @@ class Transaction(db.Model):
 
 with app.app_context():
     db.create_all()
-
 #=== === === === === === === === === === === === === === === === === === === === === === === === === === === === === ===
 
 @app.route("/", methods=['GET', 'POST'])
+@login_required
 def home():
-    today = month_year(year, now.month)
-    if not current_user.is_authenticated:
-        return redirect(url_for("login"))
+    now = dt.now()
+    current_year = now.year
+    current_month = now.month
+    current_day = now.day
+
+    today = month_year(current_year, current_month)
+
     expenses = Transaction.query.filter_by(user_id=current_user.id, transaction_type='expenses').all()
     income = Transaction.query.filter_by(user_id=current_user.id, transaction_type='income').all()
 
-    # TODO !==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==
+    #  !==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==
     this_month_income = Transaction.query.filter_by(
         user_id=current_user.id,
         transaction_type='income',
-        month=f'{actual_month(now.month)}'
+        month=f'{actual_month(current_month)}',
+        year=str(current_year)
     ).all()
     tmi = sum(t.amount for t in this_month_income)
 
-    # TODO !==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==
+    #  !==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==
     this_month_expense = Transaction.query.filter_by(
         transaction_type='expenses',
-        month=f'{actual_month(now.month)}',
+        month=f'{actual_month(current_month)}',
+        year=str(current_year),
         user_id=current_user.id
     ).all()
     tme = sum(t.amount for t in this_month_expense)
 
-    # TODO !==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==
+    #  !==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==
     total_expense = sum(t.amount for t in expenses) if expenses else 0
     total_income = sum(t.amount for t in income) if income else 0
     net_total = total_income - total_expense
 
-    # TODO !==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==
+    #  !==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==
     last_income = Transaction.query.filter_by(
         user_id=current_user.id,
         transaction_type='income',
-        month=f'{actual_month(now.month - 1)}'
+        month=f'{actual_month(current_month - 1)}',
+        year=str(current_year)
     ).all()
     lmi = sum(t.amount for t in last_income) if last_income else 0
 
-    # TODO !==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==
+    #  !==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==
     percentage = (net_total/total_income)*100 if total_income>0 else 0
 
-    # TODO !==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==!==
+    #  !==!==!==!==!==!==!==!==!==!==!==!==!==!==!==
     last_expense = Transaction.query.filter_by(
         user_id=current_user.id,
         transaction_type='expense',
-        month=f'{actual_month(now.month - 1)}'
+        month=f'{actual_month(current_month - 1)}',
+        year=str(current_year)
     ).all()
     lme = sum(t.amount for t in last_expense) if last_expense else 0
 
@@ -187,7 +187,7 @@ def home():
         per=percentage,
         last_expense=lme,
     )
-#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
+#=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -208,7 +208,7 @@ def login():
             return redirect(url_for('home'))
 
     return render_template("login.html", logged_in=False)
-#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
+#=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -238,17 +238,22 @@ def signup():
             return redirect(url_for('signup'))
 
     return render_template("signup.html", logged_in=False)
-#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
+#=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 @app.route("/transaction-history")
 @login_required
 def transaction_history():
-    # 1. Get the filter from the URL (defaults to 'all' if none provided)
+    
     filter_type = request.args.get('filter', 'all')
 
+    now = dt.now()
+    current_year = now.year
+    current_month = now.month
+    current_day = now.day
+
     # Calculate current and last month safely
-    current_month_str = actual_month(now.month)
-    current_year_str = str(now.year)
+    current_month_str = actual_month(current_month)
+    current_year_str = str(current_year)
 
     last_month_num = 12 if now.month == 1 else now.month - 1
     last_month_year_str = str(now.year - 1) if now.month == 1 else str(now.year)
@@ -257,7 +262,6 @@ def transaction_history():
     # Base query for the logged-in user
     base_query = Transaction.query.filter_by(user_id=current_user.id)
 
-    # 2. Apply Filters
     if filter_type == 'income':
         transactions = base_query.filter_by(transaction_type='income', month=current_month_str,
                                             year=current_year_str).all()
@@ -283,9 +287,10 @@ def transaction_history():
 
     return render_template("transaction-history.html", transactions=transactions, page_title=page_title,
                            filter_type=filter_type)
-#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
+#=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 @app.route("/settings", methods=["GET", "POST"])
+@login_required
 def settings():
     name = current_user.username
     email = current_user.email
@@ -314,7 +319,7 @@ def settings():
             new_name = request.form.get("name")
             new_email = request.form.get("email")
 
-            # Make sure they didn't submit blank fields
+            # Making sure they don't submit blank fields
             if new_name and new_email:
                 current_user.username = new_name
                 current_user.email = new_email
@@ -339,59 +344,75 @@ def settings():
         name=name,
         email=email
     )
-#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
+#=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 @app.route("/logout")
 def logout():
     logout_user()
     return redirect(url_for('login'))
-#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
+#=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 @app.route("/export")
+@login_required
 def export():
-    if not current_user.is_authenticated:
-        return redirect(url_for('login'))
+    # 1. Grab the filter (defaults to 'all' for the Settings page)
+    filter_type = request.args.get('filter', 'all')
+    base_query = Transaction.query.filter_by(user_id=current_user.id)
 
-    transactions = Transaction.query.filter_by(user_id=current_user.id).all()
-    user = User.query.filter_by(id=current_user.id).first()
+    # 2. Filter the database query based on the button clicked
+    if filter_type == 'income':
+        transactions = base_query.filter_by(transaction_type='income').all()
+        file_label = "Income"
+    elif filter_type == 'expenses':
+        transactions = base_query.filter_by(transaction_type='expenses').all()
+        file_label = "Expenses"
+    else:
+        transactions = base_query.all()
+        file_label = "All Transactions"
 
     output = io.StringIO()
     writer = csv.writer(output)
 
-    # Header row
     writer.writerow(['Date', 'Category', 'Type', 'Amount', 'Note', 'Month', 'Year'])
 
-    # Data rows
     for t in transactions:
         writer.writerow([t.dateMonth, t.category, t.transaction_type,
                          f"{t.amount:.2f}", t.note, t.month, t.year])
 
     output.seek(0)
-    print(user.username)
     return Response(
         output.getvalue(),
         mimetype='text/csv',
-        headers={"Content-Disposition": f"attachment; filename={user.username} Transactions.csv"}
+        # dynamically names the file!
+        headers={"Content-Disposition": f"attachment; filename={current_user.username} {file_label}.csv"}
     )
-#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
+#=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 @app.route("/export-pdf")
+@login_required
 def export_pdf():
-    if not current_user.is_authenticated:
-        return redirect(url_for('login'))
+    filter_type = request.args.get('filter', 'all')
+    base_query = Transaction.query.filter_by(user_id=current_user.id)
 
-    transactions = Transaction.query.filter_by(user_id=current_user.id).all()
+    if filter_type == 'income':
+        transactions = base_query.filter_by(transaction_type='income').all()
+        file_label = "Income"
+    elif filter_type == 'expenses':
+        transactions = base_query.filter_by(transaction_type='expenses').all()
+        file_label = "Expenses"
+    else:
+        transactions = base_query.all()
+        file_label = "All Transactions"
 
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4)
     styles = getSampleStyleSheet()
     elements = []
 
-    # Title
-    elements.append(Paragraph(f"Transaction History — {current_user.username}", styles['Title']))
+    # Title updates dynamically based on the filter
+    elements.append(Paragraph(f"{file_label} History — {current_user.username}", styles['Title']))
     elements.append(Spacer(1, 20))
 
-    # Table header + rows
     data = [['Date', 'Category', 'Type', 'Amount', 'Note']]
     for t in transactions:
         data.append([t.dateMonth, t.category, t.transaction_type,
@@ -418,9 +439,9 @@ def export_pdf():
     return Response(
         buffer.getvalue(),
         mimetype='application/pdf',
-        headers={"Content-Disposition": f"attachment; filename={current_user.username}.pdf"}
+        headers={"Content-Disposition": f"attachment; filename={current_user.username}_{file_label}.pdf"}
     )
-#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
+#=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 @app.route("/edit-transaction/<int:tx_id>", methods=["POST"])
 @login_required
@@ -447,7 +468,7 @@ def edit_transaction(tx_id):
         db.session.commit()
 
     return redirect(request.referrer or url_for('transaction_history'))
-#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
+#=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 @app.route("/delete-transaction/<int:tx_id>", methods=["POST"])
 @login_required
@@ -458,7 +479,7 @@ def delete_transaction(tx_id):
         db.session.delete(tx)
         db.session.commit()
     return redirect(request.referrer or url_for('transaction_history'))
-#todo=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
+#=>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>  =>> =>> =>>
 
 # if __name__ == '__main__':
 #     app.run(debug=True)
