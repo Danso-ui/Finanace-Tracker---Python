@@ -148,7 +148,7 @@ def home():
     #  !==!==!==!==!==!==!==!==!==!==!==!==!==!==!==
     last_expense = Transaction.query.filter_by(
         user_id=current_user.id,
-        transaction_type='expense',
+        transaction_type='expenses',
         month=f'{actual_month(current_month - 1)}',
         year=str(current_year)
     ).all()
